@@ -35,6 +35,7 @@
       doas.enable = true;
       polkit.enable = true;
       rtkit.enable = true;
+      gnome-keyring.enable = true;
     };
 
     programs._1password.enable = true;

@@ -9,17 +9,17 @@ let
 in
 with lib;
 {
+  imports = [
+    ./tlp.nix
+    ./thermald.nix
+  ];
+
   options.nixosModules.power.laptop = {
     enable = mkEnableOption "Enable power.laptop";
   };
 
   config = mkIf cfg.enable {
-    imports = [
-      ./tlp.nix
-      ./thermald.nix
-    ];
-
-    roles = {
+    nixosModules.power = {
       tlp.enable = true;
       thermald.enable = true;
     };

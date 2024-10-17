@@ -11,7 +11,7 @@ with lib;
 {
   options.nixosModules.security.gnome-keyring = {
     enable = mkEnableOption "Enable security.gnome-keyring";
-    features.unclockOnLogin = mkBoolOption "Unlock GNOME Keyring on Login";
+    features.unlockOnLogin = mkBoolOption "Unlock GNOME Keyring on Login" true;
   };
 
   config = mkIf cfg.enable {

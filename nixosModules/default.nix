@@ -15,6 +15,7 @@
     ./security/doas.nix
     ./security/polkit.nix
     ./security/rtkit.nix
+    ./security/gnome-keyring.nix
 
     ./sound/pipewire.nix
     ./sound/noisetorch.nix
