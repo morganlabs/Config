@@ -8,11 +8,16 @@
 let
   cfg = config.homeManagerModules.desktop.hyprland;
 
-  defaultBinds = (import ./binds.nix { inherit pkgs; });
-  defaultInputs = (import ./inputs.nix { inherit pkgs; });
-  defaultWindowRules = (import ./windowRules.nix { inherit pkgs; });
-  defaultDecoration = (import ./decoration.nix { inherit pkgs config; });
-  defaultEnv = (import ./env.nix { inherit pkgs; });
+  variables = {
+    "$mod" = "SUPER";
+    "$alt" = "ALT";
+  };
+
+  mkStartOnLoginSnippet =
+    shell: snippet:
+    lib.mkIf (
+      cfg.features.startOnLogin.enable && builtins.elem shell cfg.features.startOnLogin.shells
+    ) snippet;
 in
 with lib;
 {
@@ -31,122 +36,67 @@ with lib;
     };
 
     functions = {
-      brightness.enable = mkBoolOption "Enable the brightness function" false;
-      volume.enable = mkBoolOption "Enable the volume function" false;
-      screenshot.enable = mkBoolOption "Enable the screenshot function" false;
+      screenshot.enable = mkBoolOption "Enable the screenshot function" true;
       musicControl.enable = mkBoolOption "Enable the music control function" true;
+      volume.enable = mkBoolOption "Enable the volume function" true;
+      brightness.enable = mkBoolOption "Enable the brightness function" false;
     };
   };
 
-  config = mkIf cfg.enable {
-    home.packages =
-      with pkgs;
-      builtins.concatLists [
-        [
-          # (writeShellScriptBin "reset-portals" (import ./scripts/resetPortals.nix { inherit pkgs; }))
-          dconf
-          wl-clipboard
-          wev
-          kdePackages.polkit-kde-agent-1
-        ]
-        (mkIfList cfg.functions.brightness.enable [ brightnessctl ])
-        (mkIfList cfg.functions.volume.enable [ pamixer ])
-        (mkIfList cfg.functions.musicControl.enable [ playerctl ])
-        (mkIfList cfg.functions.screenshot.enable [
-          (writeShellScriptBin "screenshot" (builtins.readFile ./scripts/screenshot.sh))
-          slurp
-          grim
-          jq
-        ])
+  config = mkIf cfg.enable (
+    (mkIf cfg.config.includeDefault {
+      imports = [
+        ./config/binds.nix
+        ./config/inputs.nix
+        ./config/windowRules.nix
+        ./config/decoration.nix
+        ./config/env.nix
+        ./config/autostart.nix
+      ];
+    })
+    // (mkIf cfg.functions.brightness.enable (import ./functions/brightness.nix { inherit pkgs; }))
+    // (mkIf cfg.functions.volume.enable (import ./functions/volume.nix { inherit pkgs; }))
+    // (mkIf cfg.functions.musicControl.enable (import ./functions/musicControl.nix { inherit pkgs; }))
+    // (mkIf cfg.functions.screenshot.enable (import ./functions/screenshot.nix { inherit pkgs; }))
+    // {
+      home.packages = with pkgs; [
+        # (writeShellScriptBin "reset-portals" (import ./scripts/resetPortals.nix { inherit pkgs; }))
+        wl-clipboard
+        kdePackages.polkit-kde-agent-1
       ];
 
-    wayland.windowManager.hyprland = {
-      enable = true;
-      xwayland.enable = true;
-      package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+      gtk = import ./config/gtk.nix { inherit pkgs; };
+      programs.zsh.initExtra = mkStartOnLoginSnippet "zsh" ''
+        if [ -z "''${WAYLAND_DISPLAY}" ] && [ "''${XDG_VTNR}" -eq 1 ]; then
+        dbus-run-session Hyprland
+        fi
+      '';
 
-      settings = mkMerge [
-        {
-          "$mod" = "SUPER";
-          "$alt" = "ALT";
-        }
-        (mkIf cfg.config.includeDefault (mkMerge [
-          defaultBinds
-          defaultInputs
-          defaultWindowRules
-          defaultDecoration
-          defaultEnv
-        ]))
-        (mkIf cfg.functions.brightness.enable {
-          bind = [
-            ", XF86MonBrightnessUp, exec, brightnessctl set +5%"
-            ", XF86MonBrightnessDown, exec, brightnessctl set 5%-"
-          ];
-        })
-        (mkIf cfg.functions.volume.enable {
-          bind = [
-            ", XF86AudioRaiseVolume, exec, pamixer -i 5"
-            ", XF86AudioLowerVolume, exec, pamixer -d 5"
-            ", XF86AudioMute, exec, pamixer --toggle-mute"
-          ];
-        })
-        (mkIf cfg.functions.screenshot.enable {
-          bind = [
-            "ALT SHIFT, 1, exec, screenshot selection"
-            "ALT SHIFT, 2, exec, screenshot window"
-            "ALT SHIFT, 3, exec, screenshot all"
-          ];
-        })
-        cfg.config.extra
-      ];
-    };
+      wayland.windowManager.hyprland = {
+        enable = true;
+        xwayland.enable = true;
+        package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
 
-    programs.zsh.initExtra =
-      mkIf (cfg.features.startOnLogin.enable && builtins.elem "zsh" cfg.features.startOnLogin.shells)
-        ''
-          if [ -z "''${WAYLAND_DISPLAY}" ] && [ "''${XDG_VTNR}" -eq 1 ]; then
-            dbus-run-session Hyprland
-          fi
-        '';
-
-    # xdg.portal = {
-    #   enable = true;
-    #   xdgOpenUsePortal = true;
-    #   config.common.default = "hyprland";
-    #   extraPortals = with pkgs; [
-    #     xdg-desktop-portal-hyprland
-    #     xdg-desktop-portal-gtk
-    #   ];
-    # };
-
-    home = {
-      sessionVariables.NIXOS_OZONE_WL = "1"; # Hint electron apps to use Wayland
-
-      pointerCursor = {
-        gtk.enable = true;
-        package = pkgs.bibata-cursors;
-        name = "Bibata-Modern-Classic";
-        size = 16;
-      };
-    };
-
-    gtk = {
-      enable = true;
-
-      theme = {
-        package = pkgs.flat-remix-gtk;
-        name = "Flat-Remix-GTK-Grey-Darkest";
+        settings = mkMerge [
+          variables
+          cfg.config.extra
+        ];
       };
 
-      iconTheme = {
-        package = pkgs.adwaita-icon-theme;
-        name = "Adwaita";
+      home = {
+        sessionVariables.NIXOS_OZONE_WL = "1"; # Hint electron apps to use Wayland
+        pointerCursor = import ./config/cursor.nix { inherit pkgs; };
       };
 
-      font = {
-        name = "Sans";
-        size = 11;
-      };
-    };
-  };
+      # xdg.portal = {
+      #   enable = true;
+      #   xdgOpenUsePortal = true;
+      #   config.common.default = "hyprland";
+      #   extraPortals = with pkgs; [
+      #     xdg-desktop-portal-hyprland
+      #     xdg-desktop-portal-gtk
+      #   ];
+      # };
+    }
+  );
 }

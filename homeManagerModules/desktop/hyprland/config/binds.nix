@@ -1,6 +1,21 @@
 { pkgs, ... }:
 {
-  bind = [
+  imports = [
+    ../../../programs/kitty.nix
+    ../../rofi.nix
+    ../hyprlock.nix
+  ];
+
+  homeManagerModules = {
+    programs.kitty.enable = true;
+
+    desktop = {
+      rofi.enable = true;
+      hyprlock.enable = true;
+    };
+  };
+
+  wayland.windowManager.hyprland.settings.bind = [
     # Run programs
     "$mod, Return, exec, ${pkgs.kitty}/bin/kitty"
     "$alt SHIFT, Q, exec, ${pkgs.hyprlock}/bin/hyprlock --immediate"

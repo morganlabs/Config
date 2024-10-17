@@ -1,6 +1,6 @@
 { ... }:
 {
-  windowrulev2 = [
+  wayland.windowManager.hyprland.settings.windowrulev2 = [
     "suppressevent maximize, class:.*"
 
     "size 75% 75%, floating:1"
