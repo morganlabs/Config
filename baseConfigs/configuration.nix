@@ -2,7 +2,13 @@
 {
   nixosModules = {
     boot.grub.enable = true;
-    basic.defaultUser.enable = true;
+    basic = {
+      locale.enable = true;
+      default = {
+        user.enable = true;
+        fonts.enable = true;
+      };
+    };
 
     connectivity = {
       networkmanager.enable = true;
@@ -14,6 +20,20 @@
     services = {
       ssh.enable = true;
     };
+
+    power = {
+      thermald.enable = true;
+      tlp.enable = true;
+    };
+
+    security = {
+      doas.enable = true;
+      polkit.enable = true;
+      rtkit.enable = true;
+    };
+
+    programs._1password.enable = true;
+    desktop.hyprland.enable = true;
   };
 
   networking.hostName = hostname;

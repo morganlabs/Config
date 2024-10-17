@@ -19,6 +19,7 @@ with pkgs.lib;
 
     users.${vars.user.username} = mkMerge [
       inputs.self.outputs.homeManagerModules.default
+      # ./homeManagerModules
       (if includeBase then ./baseConfigs/home.nix else "")
       (./hosts + "/${hostname}/home.nix")
     ];

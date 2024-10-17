@@ -6,12 +6,12 @@
   ...
 }:
 let
-  cfg = config.nixosModules.basic.defaultUser;
+  cfg = config.nixosModules.basic.default.user;
 in
 with lib;
 {
-  options.nixosModules.basic.defaultUser = {
-    enable = mkEnableOption "Enable basic.defaultUser";
+  options.nixosModules.basic.default.user = {
+    enable = mkEnableOption "Enable basic.default.user";
 
     user = {
       username = mkStrOption "The username" vars.user.username;
@@ -47,6 +47,7 @@ with lib;
       description = cfg.user.fullName;
       isNormalUser = true;
       ignoreShellProgramCheck = true;
+      initialPassword = "vmpassword";
     };
   };
 }
