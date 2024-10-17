@@ -16,8 +16,12 @@
     ./security/polkit.nix
     ./security/rtkit.nix
 
+    ./sound/pipewire.nix
+    ./sound/noisetorch.nix
+
     ./power/thermald.nix
     ./power/tlp.nix
+    ./power/laptop.nix
 
     ./boot/grub.nix
 

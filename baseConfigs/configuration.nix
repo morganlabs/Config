@@ -21,6 +21,11 @@
       ssh.enable = true;
     };
 
+    sound = {
+      pipewire.enable = true;
+      noisetorch.enable = true;
+    };
+
     power = {
       thermald.enable = true;
       tlp.enable = true;
