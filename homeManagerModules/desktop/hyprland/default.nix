@@ -12,27 +12,24 @@ let
     "$mod" = "SUPER";
     "$alt" = "ALT";
   };
-
-  mkStartOnLoginSnippet =
-    shell: snippet:
-    lib.mkIf (
-      cfg.features.startOnLogin.enable && builtins.elem shell cfg.features.startOnLogin.shells
-    ) snippet;
 in
 with lib;
 {
   options.homeManagerModules.desktop.hyprland = {
     enable = mkEnableOption "Enable desktop.hyprland";
-    extra.binds = mkListOfOption types.str "Additional Bindings" [ ];
+    features.startOnLogin.enable = mkBoolOption "Auto-start Hyprland from the TTY" true;
 
     config = {
-      includeDefault = mkBoolOption "Keep the default configuration" true;
       extra = mkAttrsOption "Extra configuration" { };
-    };
 
-    features.startOnLogin = {
-      enable = mkBoolOption "Auto-start Hyprland from the TTY" true;
-      shells = mkListOfOption types.str "A list of shells that Hyprland should autostart from" [ "zsh" ];
+      includeDefault = {
+        binds = mkBoolOption "Keep default binds config" true;
+        inputs = mkBoolOption "Keep default inputs config" true;
+        windowRules = mkBoolOption "Keep default windowRules config" true;
+        decoration = mkBoolOption "Keep default decoration config" true;
+        env = mkBoolOption "Keep default env config" true;
+        autostart = mkBoolOption "Keep default autostart config" true;
+      };
     };
 
     functions = {
@@ -43,22 +40,22 @@ with lib;
     };
   };
 
-  config = mkIf cfg.enable (
-    (mkIf cfg.config.includeDefault {
-      imports = [
-        ./config/binds.nix
-        ./config/inputs.nix
-        ./config/windowRules.nix
-        ./config/decoration.nix
-        ./config/env.nix
-        ./config/autostart.nix
-      ];
-    })
-    // (mkIf cfg.functions.brightness.enable (import ./functions/brightness.nix { inherit pkgs; }))
-    // (mkIf cfg.functions.volume.enable (import ./functions/volume.nix { inherit pkgs; }))
-    // (mkIf cfg.functions.musicControl.enable (import ./functions/musicControl.nix { inherit pkgs; }))
-    // (mkIf cfg.functions.screenshot.enable (import ./functions/screenshot.nix { inherit pkgs; }))
-    // {
+  imports = [
+    ./config/binds.nix
+    ./config/inputs.nix
+    ./config/windowRules.nix
+    ./config/decoration.nix
+    ./config/env.nix
+    ./config/autostart.nix
+
+    ./functions/brightness.nix
+    ./functions/volume.nix
+    ./functions/musicControl.nix
+    ./functions/screenshot.nix
+  ];
+
+  config = mkIf cfg.enable (mergeManyAttrsets [
+    {
       home.packages = with pkgs; [
         # (writeShellScriptBin "reset-portals" (import ./scripts/resetPortals.nix { inherit pkgs; }))
         wl-clipboard
@@ -66,11 +63,6 @@ with lib;
       ];
 
       gtk = import ./config/gtk.nix { inherit pkgs; };
-      programs.zsh.initExtra = mkStartOnLoginSnippet "zsh" ''
-        if [ -z "''${WAYLAND_DISPLAY}" ] && [ "''${XDG_VTNR}" -eq 1 ]; then
-        dbus-run-session Hyprland
-        fi
-      '';
 
       wayland.windowManager.hyprland = {
         enable = true;
@@ -98,5 +90,5 @@ with lib;
       #   ];
       # };
     }
-  );
+  ]);
 }

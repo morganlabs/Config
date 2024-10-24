@@ -19,6 +19,12 @@
 
     # Customisation
     nix-colors.url = "github:misterio77/nix-colors";
+    nixcord.url = "github:kaylorben/nixcord";
+
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Neovim Plugins
     nvim-plugin-scroll-eof = {
@@ -41,8 +47,23 @@
       };
     in
     {
-      homeManagerModules.default = ./homeManagerModules;
+      homeManagerModules = {
+        default = ./homeManagerModules;
+      };
+
       nixosConfigurations = {
+        # MERCILESS - KoruSe & SNITCHXV
+        # Custom Build
+        # Ryzen 7 5800X
+        # AMD Radeon RX 6650 XT
+        # 512GB NVMe SSD
+        # 48GB (2x8gb, 2x16gb) DDR4-3200
+        merciless = mkSystem {
+          hostname = "merciless";
+          logicalCores = 16;
+          memorySize = 48;
+        };
+
         # Veins - Lil Peep
         # HP Laptop 14s-dq2512sa
         # Intel i5-1135G7
@@ -50,7 +71,11 @@
         # 256GB NVMe SSD
         # 16GB (2x8GB) DDR4-2666
         # Realtek RTL8821CE-M Wi-Fi and Bluetooth 4.2
-        veins = mkSystem { hostname = "veins"; };
+        veins = mkSystem {
+          hostname = "veins";
+          logicalCores = 8;
+          memorySize = 16;
+        };
       };
     };
 }

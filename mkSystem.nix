@@ -9,6 +9,8 @@ let
   mkSystem =
     {
       hostname,
+      logicalCores,
+      memorySize, # In GB
       system ? "x86_64-linux",
       includeBase ? true,
       extraArgs ? [ ],
@@ -34,22 +36,17 @@ let
           hostname
           extraArgs
           lib
+          logicalCores
+          memorySize
           ;
       };
 
       modules = [
         ./nixosModules
-        (if includeBase then ./baseConfigs/configuration.nix else "")
+        (lib.mkIfStr includeBase ./baseConfigs/configuration.nix)
         (./hosts + "/${hostname}/configuration.nix")
-        (import ./home-manager.nix {
-          inherit
-            inputs
-            vars
-            pkgs
-            includeBase
-            hostname
-            ;
-        })
+        (./hosts + "/${hostname}/hardware-configuration.nix")
+        (import ./home-manager.nix { inherit includeBase hostname; })
       ];
     };
 in

@@ -10,4 +10,8 @@
   mkIntOption = import ./mkOption/mkIntOption.nix { inherit lib; };
   mkStrOption = import ./mkOption/mkStrOption.nix { inherit lib; };
   mkPkgOption = import ./mkOption/mkPkgOption.nix { inherit lib; };
+
+  mergeManyAttrsets = import ./mergeMany/mergeManyAttrsets.nix { inherit lib; };
+
+  hasPackage = import ./has/hasPackage.nix;
 }

@@ -1,41 +1,45 @@
-{ ... }:
-{
-  wayland.windowManager.hyprland.settings.windowrulev2 = [
-    "suppressevent maximize, class:.*"
+{ lib, config, ... }:
+with lib;
+mkIf config.homeManagerModules.desktop.hyprland.config.includeDefault.windowRules {
+  wayland.windowManager.hyprland.extraConfig = concatStringsSep "\n" [
+    "windowrulev2 = suppressevent maximize, class:.*"
 
-    "size 75% 75%, floating:1"
-    "center, floating:1"
+    # General floating windows
+    "windowrulev2 = center, floating:1"
 
-    # File Chooser - Floating
-    "float, initialTitle:(Open Files)"
-    "size 65% 65%, initialTitle:(Open Files)"
-    "center, initialTitle:(Open Files)"
+    # File Chooser - Floating, centred
+    "windowrulev2 = float, initialTitle:(Open Files)"
+    "windowrulev2 = center, initialTitle:(Open Files)"
 
-    # Discord - Special workspace, floating
-    "workspace special:discord, class:(discord)"
-    "float, class:(discord)"
-    "size 75% 75%, class:(discord)"
-    "center, class:(discord)"
+    # Steam Settings - Floating, centred
+    "windowrulev2 = float, initialTitle:(Steam Settings)"
+    "windowrulev2 = center, initialTitle:(Steam Settings)"
+
+    # Vesktop - Special workspace, floating
+    "windowrulev2 = workspace special:vesktop, class:(vesktop)"
+    "windowrulev2 = float, class:(vesktop)"
+    "windowrulev2 = size 75% 75%, class:(vesktop)"
+    "windowrulev2 = center, class:(vesktop)"
 
     # Slack - Special workspace, floating
-    "workspace special:slack, class:(Slack)"
-    "float, class:(Slack)"
-    "size 75% 75%, class:(Slack)"
-    "center, class:(Slack)"
+    "windowrulev2 = workspace special:slack, class:(Slack)"
+    "windowrulev2 = float, class:(Slack)"
+    "windowrulev2 = size 75% 75%, class:(Slack)"
+    "windowrulev2 = center, class:(Slack)"
 
     # Betterbird - Special workspace, maximised
-    "workspace special:mail, class:(betterbird)"
-    "fullscreen, class:(betterbird)"
-    "fullscreenstate:1, class:(betterbird)"
+    "windowrulev2 = workspace special:mail, class:(betterbird)"
+    "windowrulev2 = fullscreen, class:(betterbird)"
+    "windowrulev2 = fullscreenstate:1, class:(betterbird)"
 
     # Pavucontrol - Floating
-    "float, class:(org.pulseaudio.pavucontrol)"
-    "size 75% 75%, class:(org.pulseaudio.pavucontrol)"
-    "center, class:(org.pulseaudio.pavucontrol)"
+    "windowrulev2 = float, class:(org.pulseaudio.pavucontrol)"
+    "windowrulev2 = size 75% 75%, class:(org.pulseaudio.pavucontrol)"
+    "windowrulev2 = center, class:(org.pulseaudio.pavucontrol)"
 
     # Blueman Manager - Floating
-    "float, class:(blueman-manager-wrapped)"
-    "size 75% 75%, class:(blueman-manager-wrapped)"
-    "center, class:(blueman-manager-wrapped)"
+    "windowrulev2 = float, class:(blueman-manager-wrapped)"
+    "windowrulev2 = size 75% 75%, class:(blueman-manager-wrapped)"
+    "windowrulev2 = center, class:(blueman-manager-wrapped)"
   ];
 }

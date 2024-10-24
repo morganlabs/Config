@@ -1,12 +1,21 @@
-{ hostname, ... }:
+{
+  hostname,
+  logicalCores,
+  memorySize,
+  ...
+}:
 {
   nixosModules = {
     boot.grub.enable = true;
     basic = {
       locale.enable = true;
       default = {
-        user.enable = true;
         fonts.enable = true;
+        nix.enable = true;
+        user = {
+          enable = true;
+          features.autologin.enable = true;
+        };
       };
     };
 
@@ -38,8 +47,16 @@
       gnome-keyring.enable = true;
     };
 
-    programs._1password.enable = true;
+    programs = {
+      _1password.enable = true;
+      git.enable = true;
+    };
     desktop.hyprland.enable = true;
+  };
+
+  virtualisation.vmVariant.virtualisation = {
+    memorySize = builtins.floor ((memorySize * 0.25) * 1024);
+    cores = builtins.floor (logicalCores * 0.25);
   };
 
   networking.hostName = hostname;

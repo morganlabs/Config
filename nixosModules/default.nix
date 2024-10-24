@@ -4,6 +4,7 @@
     ./basic/locale.nix
     ./basic/default/user.nix
     ./basic/default/fonts.nix
+    ./basic/default/nix.nix
 
     ./connectivity/networkmanager.nix
     ./connectivity/controld.nix
@@ -27,6 +28,8 @@
     ./boot/grub.nix
 
     ./programs/1password.nix
+    ./programs/git.nix
+    ./programs/games/steam.nix
 
     ./desktop/hyprland.nix
   ];

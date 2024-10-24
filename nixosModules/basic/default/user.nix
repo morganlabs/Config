@@ -13,14 +13,11 @@ with lib;
   options.nixosModules.basic.default.user = {
     enable = mkEnableOption "Enable basic.default.user";
 
+    features.autologin.enable = mkBoolOption "Enable autologin" false;
+
     user = {
       username = mkStrOption "The username" vars.user.username;
       fullName = mkStrOption "The full name of the user" vars.user.name;
-    };
-
-    features.autologin = {
-      enable = mkBoolOption "Enable autologin" false;
-      username = mkStrOption "Which user to auto-login" vars.user.username;
     };
 
     packages = mkListOfOption types.package "Which packages should be installed" [ ];
@@ -37,7 +34,7 @@ with lib;
       overrideStrategy = "asDropin";
       serviceConfig.ExecStart = [
         ""
-        "@${pkgs.util-linux}/sbin/agetty agetty --login-program ${config.services.getty.loginProgram} --autologin ${cfg.features.autologin.username} --noclear --keep-baud %I 115200,38400,9600 $TERM"
+        "@${pkgs.util-linux}/sbin/agetty agetty --login-program ${config.services.getty.loginProgram} --autologin ${cfg.user.username} --noclear --keep-baud %I 115200,38400,9600 $TERM"
       ];
     };
 

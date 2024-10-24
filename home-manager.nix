@@ -1,12 +1,11 @@
+{ includeBase, hostname }:
 {
   inputs,
   vars,
-  includeBase,
-  pkgs,
-  hostname,
+  lib,
   ...
 }:
-with pkgs.lib;
+with lib;
 {
   imports = [ inputs.home-manager.nixosModules.home-manager ];
   home-manager = {
@@ -18,10 +17,9 @@ with pkgs.lib;
     };
 
     users.${vars.user.username} = mkMerge [
-      inputs.self.outputs.homeManagerModules.default
-      # ./homeManagerModules
-      (if includeBase then ./baseConfigs/home.nix else "")
+      (mkIfStr includeBase ./baseConfigs/home.nix)
       (./hosts + "/${hostname}/home.nix")
+      inputs.self.outputs.homeManagerModules.default
     ];
   };
 }
