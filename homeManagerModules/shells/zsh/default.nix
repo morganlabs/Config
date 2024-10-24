@@ -84,8 +84,11 @@ with lib;
       autocd = true;
       sessionVariables = finalSessionVariables;
       shellAliases = finalAliases // finalAbbreviations;
-      zsh-abbr.abbreviations = finalAbbreviations;
       initExtraBeforeCompInit = concatStringsSep "\n" (map (item: "source \"${item}\"") finalPlugins);
+      zsh-abbr = {
+        enable = true;
+        abbreviations = finalAbbreviations;
+      };
 
       initExtra = strings.concatStringsSep "\n" [
         cfg.config.extra.config

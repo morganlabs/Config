@@ -18,5 +18,4 @@
   gll = "git log";
   gco = "git checkout";
   gfuck = "git reset --hard";
-  gbr = "git branch --format=\"'%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:green) (%(committerdate:relative)) [ %(authorname) ]'\"";
 }
